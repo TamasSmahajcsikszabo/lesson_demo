@@ -1,0 +1,14 @@
+MATCH (episode:Episode {title: "15"})
+
+// Match the relationships
+OPTIONAL MATCH (episode)<-[:PART_OF_EPISODE]-(scene:Scene)
+OPTIONAL MATCH (scene)<-[:IN_SCENE]-(who:Character)
+OPTIONAL MATCH (who)-[:SAYS]->(text:Text)
+
+// Return the data
+RETURN 
+    episode.title AS Episode,
+    scene.id AS SceneNumber,
+    who.name AS Character,
+    text.content AS TextSaid
+ORDER BY scene.id, who.name;
