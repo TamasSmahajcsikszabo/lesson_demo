@@ -1,0 +1,11 @@
+// Define the list of core members
+WITH ["PICARD", "RIKER", "DATA", "WORF", "GEORDI", "TROI", "BEVERLY", "WESLEY"] AS coreMembers
+
+// Match all characters
+MATCH (c:Character)
+
+// Check if the character's name is in the coreMembers list
+SET c.status = CASE 
+    WHEN c.name IN coreMembers THEN "CORE MEMBER"
+    ELSE "SUPPORTING"
+END;
