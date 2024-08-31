@@ -1,0 +1,37 @@
+LOAD CSV WITH HEADERS FROM 'file:///TNGAbbr.csv' as row
+WITH row, split(row.characters, ',') AS characterList
+
+// Create or match the 'who' Character node
+MERGE (who:Character {name: trim(row.who)})
+
+// Create or match the Scene node
+MERGE (scene:Scene {id: trim(row.scenenumber)})
+
+// Create or match the Episode node
+MERGE (episode:Episode {title: trim(row.Episode)})
+
+// Create or match the Season node
+MERGE (season:Season {number: trim(row.Season)})
+
+// Create relationships for 'who'
+MERGE (who)-[:APPREARS_IN_SCENE]->(scene)
+MERGE (who)-[:PLAYS_IN_EPISODE]->(episode)
+MERGE (who)-[:PLAYS_IN_SEASON]->(season)
+
+// Add each text to character
+MERGE (text:Text {content: row.text})
+MERGE (who)-[:SAYS]->(text)
+MERGE (text)-[:SAID]->(scene)
+
+// Process each character in the 'characters' list
+FOREACH (characterName IN characterList |
+  MERGE (character:Character {name: trim(characterName)})
+  // Create the relationship between each character and the Scene
+  MERGE (character)-[:IN_SCENE]->(scene)
+  // Create the relationship between each character and the Episode
+ MERGE (character)-[:PLAYS_IN_EPISODE]->(episode)
+)
+
+// Create relationships between Scene and Episode, and Episode and Season
+MERGE (scene)-[:PART_OF_EPISODE]->(episode)
+MERGE (episode)-[:SCREENED_IN]->(season);
